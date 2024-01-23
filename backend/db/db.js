@@ -14,10 +14,11 @@ const mongoConnection = async () => {
 mongoConnection();
 
 const userSchema = new mongoose.Schema({
-  username: string,
-  firstName: string,
-  lastName: string,
-  password: string,
+  username: String,
+  password: String,
+  firstName: String,
+  lastName: String,
+  
 });
 
 const User = mongoose.model("User", userSchema);
