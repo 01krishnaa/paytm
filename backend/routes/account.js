@@ -1,5 +1,5 @@
 const express = require("express");
-const { Account, User } = require("../db/db");
+const { Account } = require("../db/db");
 const { authMiddleware } = require("../middlewares/middleware");
 const { default: mongoose } = require("mongoose");
 const accountRouter = express.Router();
@@ -19,53 +19,69 @@ accountRouter.get("/balance", authMiddleware, async (req, res) => {
 accountRouter.post("/transfer", authMiddleware, async (req, res) => {
   const session = await mongoose.startSession();
 
-  const { amount, to } = req.body;
+  try {
+    await session.startTransaction();
 
-  const account = await Account.findOne({
-    userId: req.userId,
-  }).session(session);
+    const { amount, to } = req.body;
 
-  if (!account || account.balance < amount) {
-    await session.abortTransaction();
-    return res.status(400).json({
-      message: "Insufficient balance",
-    });
-  }
-
-  const toAccount = await User.findOne({
-    userId: to,
-  }).session(session);
-
-  if (!toAccount) {
-    await session.abortTransaction();
-    return res.status(400).json({
-      message: "Invalid account",
-    });
-  }
-
-  await Account.updateOne(
-    { userId: req.userId },
-    {
-      $inc: {
-        balance: -amount,
-      },
+    // Validate amount
+    if (typeof amount !== 'number' || amount <= 0) {
+      throw new Error("Invalid amount");
     }
-  ).session(session);
 
-  await Account.updateOne(
-    { userId: to },
-    {
-      $inc: {
-        balance: amount,
-      },
+    // Validate 'to' field
+    if (!to) {
+      throw new Error("'to' field is required");
     }
-  ).session(session);
 
-  await session.commitTransaction();
-  res.json({
-    message: "Transfer successful",
-  });
-});
+    const account = await Account.findOne({
+      userId: req.userId,
+    }).session(session);
+
+    if (!account || account.balance < amount) {
+      throw new Error("Insufficient balance");
+    }
+
+    const toAccount = await Account.findOne({
+      userId: to,
+    }).session(session);
+
+    if (!toAccount) {
+      throw new Error("Invalid account");
+    }
+
+    await Account.updateOne(
+      { userId: req.userId },
+      {
+        $inc: {
+          balance: -amount,
+        },
+      }
+    ).session(session);
+
+    await Account.updateOne(
+      { userId: to },
+      {
+        $inc: {
+          balance: amount,
+        },
+      }
+    ).session(session);
+
+    await session.commitTransaction();
+    res.json({
+      message: "Transfer successful",
+    });
+  } catch (error) {
+    await session.abortTransaction();
+    console.error("Error during fund transfer:", error);
+    res.status(500).json({
+      message: "Internal Server Error",
+    });
+  } finally {
+    session.endSession();
+  }
+});     
 
 module.exports = {
   accountRouter,
