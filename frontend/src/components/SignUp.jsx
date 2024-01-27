@@ -49,13 +49,17 @@ const SignUp = () => {
         />
       </div>
       <button
-        onClick={() => {
-          axios.post("http://localhost:5000/api/v1/user/signup", {
+        onClick={async() => {
+         const response =await axios.post("http://localhost:5000/api/v1/user/signup", {
             firstName,
             lastName,
             username,
             password,
           });
+          localStorage.setItem('token', response.data.token)
+          console.log(response.data)
+          console.log(response.data.token)
+
         }}
         className="mb-2 w-full px-10 py-2 bg-black text-white rounded-lg"
       >
