@@ -1,5 +1,6 @@
-
 import React, { useState } from "react";
+import { Link } from "react-router-dom";
+import axios from "axios";
 
 const SignIn = () => {
   const [username, setUsername] = useState("");
@@ -30,17 +31,28 @@ const SignIn = () => {
       </div>
       <button
         onClick={() => {
-          axios.post("http://localhost:5000/api/v1/user/signin", {
-            username,
-            password,
-          });
+          axios.post(
+            "http://localhost:5000/api/v1/user/signin",
+            {
+              username,
+              password,
+            },
+            {
+              headers: {
+                Authorization: "Bearer " + localStorage.getItem("token"),
+              },
+            }
+          );
         }}
         className="mb-2 w-full px-10 py-2 bg-black text-white rounded-lg"
       >
         Sign In
       </button>
       <p className="font-medium text-center">
-        Dont't have an account? <u>Sign Up</u>
+        Dont't have an account?
+        <Link to={"/"}>
+          <u>Sign Up</u>
+        </Link>
       </p>
     </div>
   );

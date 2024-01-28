@@ -1,11 +1,14 @@
 import React, { useState } from "react";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 const SignUp = () => {
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+
+  const navigate = useNavigate();
 
   return (
     <div className="m-5 p-5 mx-auto mt-20 w-[350px] h-[580px] shadow-xl bg-slate-50 rounded-xl">
@@ -48,23 +51,37 @@ const SignUp = () => {
           type="password"
         />
       </div>
-      <button
-        onClick={async() => {
-         const response =await axios.post("http://localhost:5000/api/v1/user/signup", {
-            firstName,
-            lastName,
-            username,
-            password,
-          });
-          localStorage.setItem('token', response.data.token)
-          console.log(response.data)
-          console.log(response.data.token)
 
+      <button
+        onClick={async () => {
+          try {
+            const response = await axios.post(
+              "http://localhost:5000/api/v1/user/signup",
+              {
+                firstName,
+                lastName,
+                username,
+                password,
+              }
+            );
+
+            if (response.status === 200) {
+              localStorage.setItem("token", response.data.token);
+              console.log(response);
+              console.log(response.data.token);
+              navigate("/signin");
+            } else {
+              console.log("Not valid info");
+            }
+          } catch (error) {
+            console.error("Error during sign up:", error);
+          }
         }}
         className="mb-2 w-full px-10 py-2 bg-black text-white rounded-lg"
       >
         Sign Up
       </button>
+
       <p className="font-medium text-center">
         Already have an account? <u>Login</u>
       </p>
