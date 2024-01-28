@@ -1,10 +1,12 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 
 const SignIn = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+
+  const navigate = useNavigate();
 
   return (
     <div className="m-5 p-5 mx-auto mt-40 w-[350px] h-[400px] shadow-xl bg-slate-50 rounded-xl">
@@ -30,19 +32,27 @@ const SignIn = () => {
         />
       </div>
       <button
-        onClick={() => {
-          axios.post(
-            "http://localhost:5000/api/v1/user/signin",
-            {
-              username,
-              password,
-            },
-            {
-              headers: {
-                Authorization: "Bearer " + localStorage.getItem("token"),
+        onClick={async() => {
+          try {
+            const resp =await axios.post(
+              "http://localhost:5000/api/v1/user/signin",
+              {
+                username,
+                password,
               },
+              {
+                headers: {
+                  Authorization: "Bearer " + localStorage.getItem("token"),
+                },
+              }
+            );
+            console.log(resp)
+            if (resp.status == 200) {
+              navigate("/dashboard");
             }
-          );
+          } catch (error) {
+            console.error("Error during sign in:", error);
+          }
         }}
         className="mb-2 w-full px-10 py-2 bg-black text-white rounded-lg"
       >

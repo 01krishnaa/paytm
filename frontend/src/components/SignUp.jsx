@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 
 const SignUp = () => {
   const [firstName, setFirstName] = useState("");
@@ -70,8 +71,6 @@ const SignUp = () => {
               console.log(response);
               console.log(response.data.token);
               navigate("/signin");
-            } else {
-              console.log("Not valid info");
             }
           } catch (error) {
             console.error("Error during sign up:", error);
@@ -83,7 +82,10 @@ const SignUp = () => {
       </button>
 
       <p className="font-medium text-center">
-        Already have an account? <u>Login</u>
+        Already have an account?{" "}
+        <Link to={"/signin"}>
+          <u>Login</u>
+        </Link>
       </p>
     </div>
   );
