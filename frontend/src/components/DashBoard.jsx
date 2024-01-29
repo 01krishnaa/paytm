@@ -32,7 +32,7 @@ const DashBoard = () => {
     <div>
       <div className="w-full flex justify-between bg-slate-200 p-4 mt-5">
         <b>PayTM App</b>
-        <b>Hello {users[users.length - 1].firstName}</b>
+        {/* <b>Hello {users[users.length - 1].firstName}</b> */}
       </div>
 
       <div className="my-3 p-2 font-medium">Your balance Rs {Math.floor(balance)}</div>
